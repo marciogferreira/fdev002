@@ -1,30 +1,29 @@
-// FAZER A CONEXAO COM BANCO DE DADOS
-import mysql from 'mysql';
-
+import mysql from 'mysql'
+import { makeDb } from 'mysql-async-simple';
 class Conexao {
-    constructor () {
+    constructor() {
         this.connection = mysql.createConnection({
             host     : 'localhost',
             user     : 'root',
             password : '',
             database : 'ads'
         });
+        this.db = makeDb();
     }
 
-    // metodo = funcao
-    query(sql, dados, callback) {
-        this.connection.connect();
-        this.connection.query(sql, dados, callback)
-        this.connection.end();
+    async query (sql, dados) {
+
+        await this.db.connect(this.connection);
+        try {
+            const data = await this.db.query(this.connection, sql, dados);
+            return data;
+            
+        } catch(e) {
+            throw e;
+        } finally {
+            await this.db.close(this.connection);
+        }      
     }
 }
-
-// const con = new Conexao();
-// con.query("SELECT * FROM usuarios", {}, function(status, resultado) {
-//     if(status) {
-//         console.log("Erro de Consulta");
-//     }
-//     console.log(resultado);
-// });
 
 export default Conexao;
